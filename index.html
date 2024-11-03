@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة تسجيل الدخول</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- إضافة Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>تسجيل الدخول</h2>
+        <input type="text" id="username" placeholder="اسم المستخدم" required>
+        <input type="password" id="password" placeholder="كلمة المرور" required>
+        <button onclick="login()">دخول</button>
+        <button onclick="register()">تسجيل عميل جديد</button>
+    </div>
+
+    <script>
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // تهيئة Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // تهيئة Firestore
+
+        const clients = {};
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === "admin" && password === "adminpassword") {
+                window.location.href = 'admin.html'; // توجيه إلى صفحة الإدارة
+            } else if (isClientValid(username, password)) {
+                localStorage.setItem('clientUsername', username); // تخزين اسم المستخدم للعميل
+                window.location.href = 'client.html'; // توجيه إلى صفحة العميل
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+            }
+        }
+
+        function isClientValid(username, password) {
+            return clients[username] && clients[username].password === password;
+        }
+
+        function register() {
+            const username = prompt("اسم المستخدم:");
+            const password = prompt("كلمة المرور:");
+
+            if (username && password) {
+                if (!clients[username]) {
+                    clients[username] = { password: password, shipments: [] }; // إنشاء عميل جديد
+                    alert('تم تسجيل العميل الجديد بنجاح!');
+                } else {
+                    alert('اسم المستخدم موجود بالفعل. يرجى اختيار اسم آخر.');
+                }
+            } else {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
+            }
+        }
+    </script>
+</body>
+</html>

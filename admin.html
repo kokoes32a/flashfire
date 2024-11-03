@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة الأدمن</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- إضافة Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>إدارة شحنات العملاء</h2>
+        <div id="clientsContainer"></div>
+    </div>
+
+    <script>
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // تهيئة Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // تهيئة Firestore
+
+        function displayClients() {
+            const container = document.getElementById('clientsContainer');
+            container.innerHTML = ''; // تنظيف المحتوى السابق
+
+            db.collection('shipments').get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const shipment = doc.data();
+                    const clientDiv = document.createElement('div');
+                    clientDiv.classList.add('client');
+                    clientDiv.innerHTML = `<h3>العميل: ${shipment.username}</h3>`; // أيقونة العميل
+
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>اسم العميل</th>
+                                <th>عنوان العميل</th>
+                                <th>التحصيل بالشحن</th>
+                                <th>حالة الشحنة</th>
+                                <th>تعديل الحالة</th>
+                                <th>عمليات</
