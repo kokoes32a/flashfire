@@ -5,67 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة تسجيل الدخول</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- إضافة Firebase SDK -->
+    <!-- إضافة مكتبة Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 </head>
 <body>
     <div class="container">
         <h2>تسجيل الدخول</h2>
-        <input type="text" id="username" placeholder="اسم المستخدم" required>
+        <input type="email" id="username" placeholder="البريد الإلكتروني" required>
         <input type="password" id="password" placeholder="كلمة المرور" required>
         <button onclick="login()">دخول</button>
         <button onclick="register()">تسجيل عميل جديد</button>
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
+            authDomain: "flash2-d91cf.firebaseapp.com",
+            projectId: "flash2-d91cf",
+            storageBucket: "flash2-d91cf.appspot.com",
+            messagingSenderId: "56061341567",
+            appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
-        // تهيئة Firebase
+        // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // تهيئة Firestore
-
-        const clients = {};
+        const auth = firebase.auth();
 
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username === "admin" && password === "adminpassword") {
-                window.location.href = 'admin.html'; // توجيه إلى صفحة الإدارة
-            } else if (isClientValid(username, password)) {
-                localStorage.setItem('clientUsername', username); // تخزين اسم المستخدم للعميل
-                window.location.href = 'client.html'; // توجيه إلى صفحة العميل
-            } else {
-                alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
-            }
-        }
-
-        function isClientValid(username, password) {
-            return clients[username] && clients[username].password === password;
+            auth.signInWithEmailAndPassword(username, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    localStorage.setItem('clientUsername', username);
+                    window.location.href = 'client.html';
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    alert('خطأ: ' + errorMessage);
+                });
         }
 
         function register() {
-            const username = prompt("اسم المستخدم:");
+            const username = prompt("البريد الإلكتروني:");
             const password = prompt("كلمة المرور:");
 
             if (username && password) {
-                if (!clients[username]) {
-                    clients[username] = { password: password, shipments: [] }; // إنشاء عميل جديد
-                    alert('تم تسجيل العميل الجديد بنجاح!');
-                } else {
-                    alert('اسم المستخدم موجود بالفعل. يرجى اختيار اسم آخر.');
-                }
+                auth.createUserWithEmailAndPassword(username, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        alert('تم تسجيل العميل الجديد بنجاح!');
+                    })
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        alert('خطأ: ' + errorMessage);
+                    });
             } else {
-                alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
+                alert('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
             }
         }
     </script>
