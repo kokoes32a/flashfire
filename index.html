@@ -6,11 +6,21 @@
     <title>صفحة تسجيل الدخول</title>
     <link rel="stylesheet" href="styles.css">
     <!-- إضافة مكتبة Firebase -->
-    <script type="module">
-        // استيراد المكتبات
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>تسجيل الدخول</h2>
+        <input type="text" id="username" placeholder="اسم المستخدم" required>
+        <input type="password" id="password" placeholder="كلمة المرور" required>
+        <button onclick="login()">دخول</button>
+        <button onclick="register()">تسجيل عميل جديد</button>
+    </div>
 
+    <!-- إعدادات Firebase وكود التهيئة -->
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
@@ -21,51 +31,59 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        window.login = function() {
+        function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            signInWithEmailAndPassword(auth, username, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    localStorage.setItem('clientUsername', username);
-                    window.location.href = 'client.html';
+            // تحقق من وجود المستخدم في Firestore
+            db.collection("users").where("username", "==", username).get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        alert('اسم المستخدم غير موجود.');
+                        return;
+                    }
+
+                    const userDoc = querySnapshot.docs[0];
+                    const userData = userDoc.data();
+
+                    // تحقق من كلمة المرور
+                    if (userData.password === password) {
+                        localStorage.setItem('clientUsername', username);
+                        window.location.href = 'client.html';
+                    } else {
+                        alert('كلمة المرور غير صحيحة.');
+                    }
                 })
                 .catch((error) => {
-                    const errorMessage = error.message;
-                    alert('خطأ: ' + errorMessage);
+                    console.error("Error getting documents: ", error);
                 });
         }
 
-        window.register = function() {
-            const username = prompt("البريد الإلكتروني:");
-            const password = prompt("كلمة المرور:");
+        function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
             if (username && password) {
-                createUserWithEmailAndPassword(auth, username, password)
-                    .then((userCredential) => {
-                        alert('تم تسجيل العميل الجديد بنجاح!');
-                    })
-                    .catch((error) => {
-                        const errorMessage = error.message;
-                        alert('خطأ: ' + errorMessage);
-                    });
+                // إضافة المستخدم إلى Firestore
+                db.collection("users").add({
+                    username: username,
+                    password: password
+                })
+                .then(() => {
+                    alert('تم تسجيل العميل الجديد بنجاح!');
+                })
+                .catch((error) => {
+                    console.error("Error adding document: ", error);
+                    alert('حدث خطأ أثناء تسجيل العميل.');
+                });
             } else {
-                alert('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
             }
         }
     </script>
-</head>
-<body>
-    <div class="container">
-        <h2>تسجيل الدخول</h2>
-        <input type="email" id="username" placeholder="البريد الإلكتروني" required>
-        <input type="password" id="password" placeholder="كلمة المرور" required>
-        <button onclick="login()">دخول</button>
-        <button onclick="register()">تسجيل عميل جديد</button>
-    </div>
 </body>
 </html>
