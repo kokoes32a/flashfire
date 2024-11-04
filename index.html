@@ -1,73 +1,52 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحة تسجيل الدخول</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- إضافة مكتبة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h2>تسجيل الدخول</h2>
-        <input type="email" id="username" placeholder="البريد الإلكتروني" required>
-        <input type="password" id="password" placeholder="كلمة المرور" required>
-        <button onclick="login()">دخول</button>
-        <button onclick="register()">تسجيل عميل جديد</button>
-    </div>
+<script type="module">
+    // استيراد المكتبات
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
-            authDomain: "flash2-d91cf.firebaseapp.com",
-            projectId: "flash2-d91cf",
-            storageBucket: "flash2-d91cf.appspot.com",
-            messagingSenderId: "56061341567",
-            appId: "1:56061341567:web:54ab9815e76f0225b4344a"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
+        authDomain: "flash2-d91cf.firebaseapp.com",
+        projectId: "flash2-d91cf",
+        storageBucket: "flash2-d91cf.appspot.com",
+        messagingSenderId: "56061341567",
+        appId: "1:56061341567:web:54ab9815e76f0225b4344a"
+    };
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-            auth.signInWithEmailAndPassword(username, password)
+        signInWithEmailAndPassword(auth, username, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                localStorage.setItem('clientUsername', username);
+                window.location.href = 'client.html';
+            })
+            .catch((error) => {
+                const errorMessage = error.message;
+                alert('خطأ: ' + errorMessage);
+            });
+    }
+
+    function register() {
+        const username = prompt("البريد الإلكتروني:");
+        const password = prompt("كلمة المرور:");
+
+        if (username && password) {
+            createUserWithEmailAndPassword(auth, username, password)
                 .then((userCredential) => {
-                    const user = userCredential.user;
-                    localStorage.setItem('clientUsername', username);
-                    window.location.href = 'client.html';
+                    alert('تم تسجيل العميل الجديد بنجاح!');
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
                     const errorMessage = error.message;
                     alert('خطأ: ' + errorMessage);
                 });
+        } else {
+            alert('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
         }
-
-        function register() {
-            const username = prompt("البريد الإلكتروني:");
-            const password = prompt("كلمة المرور:");
-
-            if (username && password) {
-                auth.createUserWithEmailAndPassword(username, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        alert('تم تسجيل العميل الجديد بنجاح!');
-                    })
-                    .catch((error) => {
-                        const errorCode = error.code;
-                        const errorMessage = error.message;
-                        alert('خطأ: ' + errorMessage);
-                    });
-            } else {
-                alert('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
-            }
-        }
-    </script>
-</body>
-</html>
+    }
+</script>
