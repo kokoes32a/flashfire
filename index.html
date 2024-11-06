@@ -13,7 +13,7 @@
 <body>
     <div class="container">
         <h2>تسجيل الدخول</h2>
-        <input type="text" id="username" placeholder="اسم المستخدم" required>
+        <input type="email" id="username" placeholder="البريد الإلكتروني" required>
         <input type="password" id="password" placeholder="كلمة المرور" required>
         <button onclick="login()">دخول</button>
         <button onclick="register()">تسجيل عميل جديد</button>
@@ -25,13 +25,13 @@
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
             projectId: "flash2-d91cf",
-            storageBucket: "flash2-d91cf.appspot.com",
+            storageBucket: "flash2-d91cf.firebasestorage.app",
             messagingSenderId: "56061341567",
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
@@ -39,49 +39,37 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // تحقق من وجود المستخدم في Firestore
-            db.collection("users").where("username", "==", username).get()
-                .then((querySnapshot) => {
-                    if (querySnapshot.empty) {
-                        alert('اسم المستخدم غير موجود.');
-                        return;
-                    }
-
-                    const userDoc = querySnapshot.docs[0];
-                    const userData = userDoc.data();
-
-                    // تحقق من كلمة المرور
-                    if (userData.password === password) {
-                        localStorage.setItem('clientUsername', username);
-                        window.location.href = 'client.html';
-                    } else {
-                        alert('كلمة المرور غير صحيحة.');
-                    }
+            auth.signInWithEmailAndPassword(username, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    localStorage.setItem('clientUsername', username);
+                    window.location.href = 'client.html';
                 })
                 .catch((error) => {
-                    console.error("Error getting documents: ", error);
+                    const errorMessage = error.message;
+                    alert('خطأ: ' + errorMessage);
                 });
         }
 
         function register() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = prompt("البريد الإلكتروني:");
+            const password = prompt("كلمة المرور:");
 
             if (username && password) {
-                // إضافة المستخدم إلى Firestore
-                db.collection("users").add({
-                    username: username,
-                    password: password
-                })
-                .then(() => {
-                    alert('تم تسجيل العميل الجديد بنجاح!');
-                })
-                .catch((error) => {
-                    console.error("Error adding document: ", error);
-                    alert('حدث خطأ أثناء تسجيل العميل.');
-                });
+                auth.createUserWithEmailAndPassword(username, password)
+                    .then((userCredential) => {
+                        db.collection("users").add({
+                            username: username,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        alert('تم تسجيل العميل الجديد بنجاح!');
+                    })
+                    .catch((error) => {
+                        const errorMessage = error.message;
+                        alert('خطأ: ' + errorMessage);
+                    });
             } else {
-                alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
+                alert('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
             }
         }
     </script>
