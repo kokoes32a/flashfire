@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة الأدمن</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- إضافة Firebase SDK -->
+    <!-- إضافة مكتبة Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h2>إدارة شحنات العملاء</h2>
-        <div id="clientsContainer"></div>
-    </div>
+    <h2>صفحة الأدمن</h2>
+    <div id="admin-shipments"></div>
 
+    <!-- إعدادات Firebase وكود التهيئة -->
     <script>
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
-            apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
+           apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
             projectId: "flash2-d91cf",
             storageBucket: "flash2-d91cf.firebasestorage.app",
@@ -26,28 +24,31 @@
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
-        // تهيئة Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // تهيئة Firestore
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        function displayClients() {
-            const container = document.getElementById('clientsContainer');
-            container.innerHTML = ''; // تنظيف المحتوى السابق
-
-            db.collection('shipments').get().then((querySnapshot) => {
+        function displayShipments() {
+            db.collection("shipments").get().then((querySnapshot) => {
+                let output = "";
                 querySnapshot.forEach((doc) => {
-                    const shipment = doc.data();
-                    const clientDiv = document.createElement('div');
-                    clientDiv.classList.add('client');
-                    clientDiv.innerHTML = `<h3>العميل: ${shipment.username}</h3>`; // أيقونة العميل
+                    output += `<p>${doc.data().details} <button onclick="deleteShipment('${doc.id}')">حذف</button></p>`;
+                });
+                document.getElementById("admin-shipments").innerHTML = output;
+            });
+        }
 
-                    const table = document.createElement('table');
-                    table.innerHTML = `
-                        <thead>
-                            <tr>
-                                <th>اسم العميل</th>
-                                <th>عنوان العميل</th>
-                                <th>التحصيل بالشحن</th>
-                                <th>حالة الشحنة</th>
-                                <th>تعديل الحالة</th>
-                                <th>عمليات</
+        function deleteShipment(docId) {
+            db.collection("shipments").doc(docId).delete().then(() => {
+                alert("تم حذف الشحنة بنجاح");
+                displayShipments();
+            }).catch((error) => {
+                alert("خطأ في الحذف: " + error.message);
+            });
+        }
+
+        // عرض الشحنات عند تحميل الصفحة
+        displayShipments();
+    </script>
+</body>
+</html>
