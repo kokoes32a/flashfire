@@ -6,12 +6,12 @@
     <title>شحنات العميل</title>
     <link rel="stylesheet" href="styles.css">
     <!-- إضافة Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
-        <h2>شحنات العميل</h2>
+        <h2>شحناتك</h2>
         <table id="shipmentTable">
             <thead>
                 <tr>
@@ -23,7 +23,6 @@
             </thead>
             <tbody id="shipmentTableBody"></tbody>
         </table>
-        <button onclick="addNewShipment()">إضافة شحنة جديدة</button>
     </div>
 
     <script>
@@ -41,23 +40,26 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(); // تهيئة Firestore
 
-        // الحصول على اسم المستخدم من الرابط
-        const urlParams = new URLSearchParams(window.location.search);
-        const username = urlParams.get('username');
+        // الحصول على اسم العميل من LocalStorage (تأكد أنه تم تسجيل الدخول)
+        const username = localStorage.getItem('clientUsername');
 
-        // تحميل الشحنات الخاصة بالعميل عند فتح الصفحة
-        db.collection('shipments').where('username', '==', username).get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    const shipment = doc.data();
-                    addRowToTable(shipment.name, shipment.address, shipment.collection, shipment.status);
+        if (username) {
+            // تحميل الشحنات عند فتح الصفحة
+            db.collection('shipments').where('username', '==', username).get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const shipment = doc.data();
+                        addRowToTable(shipment.name, shipment.address, shipment.collection, shipment.status);
+                    });
+                })
+                .catch((error) => {
+                    console.error('خطأ في تحميل الشحنات: ', error);
                 });
-            })
-            .catch((error) => {
-                console.error("خطأ في تحميل الشحنات: ", error);
-            });
+        } else {
+            alert("لا يوجد مستخدم مسجل! يرجى تسجيل الدخول.");
+            window.location.href = 'login.html'; // إعادة توجيه إلى صفحة تسجيل الدخول
+        }
 
-        // إضافة صف جديد إلى جدول الشحنات
         function addRowToTable(name, address, collection, status) {
             const newRow = `
                 <tr>
@@ -68,39 +70,6 @@
                 </tr>
             `;
             document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
-        }
-
-        // إضافة شحنة جديدة
-        function addNewShipment() {
-            const name = prompt("اسم العميل:");
-            const address = prompt("عنوان العميل:");
-            const collection = prompt("التحصيل بالشحن:");
-
-            if (name && address && collection) {
-                addShipment(name, address, collection);
-            } else {
-                alert("يرجى إدخال جميع المعلومات المطلوبة.");
-            }
-        }
-
-        // إضافة شحنة إلى قاعدة البيانات
-        function addShipment(name, address, collection) {
-            const shipment = {
-                username: username,
-                name: name,
-                address: address,
-                collection: collection,
-                status: ''  // حالة الشحنة فارغة في البداية
-            };
-
-            db.collection('shipments').add(shipment)
-                .then(() => {
-                    console.log('تم إضافة الشحنة بنجاح!');
-                    addRowToTable(name, address, collection, shipment.status);
-                })
-                .catch((error) => {
-                    console.error('خطأ في إضافة الشحنة: ', error);
-                });
         }
     </script>
 </body>
