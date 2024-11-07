@@ -6,17 +6,19 @@
     <title>صفحة العميل</title>
     <link rel="stylesheet" href="styles.css">
     <!-- إضافة مكتبة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
-        <h2>مرحباً بك في صفحة العميل</h2>
-        <p>اسم المستخدم: <span id="usernameDisplay"></span></p>
-        <button onclick="logout()">تسجيل الخروج</button>
+        <h2>إضافة شحنة جديدة</h2>
+        <input type="text" id="shipmentName" placeholder="اسم العميل" required>
+        <input type="text" id="shipmentAddress" placeholder="العنوان" required>
+        <input type="number" id="shipmentAmount" placeholder="قيمة التحصيل" required>
+        <input type="text" id="shipmentStatus" placeholder="حالة الشحنة" value="قيد التنفيذ" readonly>
+        <button onclick="addShipment()">إضافة الشحنة</button>
     </div>
 
-    <!-- إعدادات Firebase وكود التهيئة -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
@@ -28,23 +30,31 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // جلب اسم المستخدم من localStorage وعرضه
-        window.onload = function() {
-            const username = localStorage.getItem('clientUsername');
-            if (username) {
-                document.getElementById('usernameDisplay').textContent = username;
-            } else {
-                window.location.href = 'index.html'; // إعادة التوجيه إذا لم يكن هناك اسم مستخدم مخزن
-            }
-        };
+        // إضافة شحنة جديدة
+        function addShipment() {
+            const shipmentName = document.getElementById('shipmentName').value;
+            const shipmentAddress = document.getElementById('shipmentAddress').value;
+            const shipmentAmount = document.getElementById('shipmentAmount').value;
+            const shipmentStatus = document.getElementById('shipmentStatus').value;
 
-        // تسجيل الخروج
-        function logout() {
-            localStorage.removeItem('clientUsername');
-            window.location.href = 'index.html'; // العودة لصفحة تسجيل الدخول
+            // إضافة الشحنة إلى Firestore
+            db.collection("shipments").add({
+                clientName: shipmentName,
+                address: shipmentAddress,
+                amount: shipmentAmount,
+                status: shipmentStatus,
+                clientUsername: localStorage.getItem('clientUsername') // ربط الشحنة بالمستخدم
+            })
+            .then(() => {
+                alert('تم إضافة الشحنة بنجاح');
+            })
+            .catch((error) => {
+                console.error("خطأ أثناء إضافة الشحنة: ", error);
+                alert('فشل في إضافة الشحنة');
+            });
         }
     </script>
 </body>
