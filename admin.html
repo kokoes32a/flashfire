@@ -5,71 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة الأدمن</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- إضافة Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            direction: rtl;
-            padding: 20px;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 900px;
-            margin: auto;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .shipment {
-            background-color: #f9f9f9;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
-        .shipment h3 {
-            margin: 0;
-            font-size: 18px;
-            color: #333;
-        }
-        .shipment p {
-            margin: 5px 0;
-        }
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <h2>شحنات العملاء</h2>
-        <div id="shipmentsList"></div>
+        <h2>إدارة شحنات العملاء</h2>
+        <div id="clientsContainer"></div>
     </div>
 
     <script>
+        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
@@ -79,55 +26,71 @@
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
-        // Initialize Firebase
+        // تهيئة Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const db = firebase.firestore(); // تهيئة Firestore
 
-        // عرض الشحنات لكل العملاء
-        function loadShipments() {
-            db.collection("shipments")
-                .get()
-                .then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        const shipment = doc.data();
-                        const shipmentDiv = document.createElement('div');
-                        shipmentDiv.classList.add('shipment');
+        // عرض الشحنات
+        function displayClients() {
+            const container = document.getElementById('clientsContainer');
+            container.innerHTML = ''; // تنظيف المحتوى السابق
 
-                        shipmentDiv.innerHTML = `
-                            <h3>عميل: ${shipment.clientName}</h3>
-                            <p>العنوان: ${shipment.address}</p>
-                            <p>التحصيل: ${shipment.amount}</p>
-                            <p>الحالة: <input type="text" value="${shipment.status}" id="status-${doc.id}" /></p>
-                            <button onclick="updateShipmentStatus('${doc.id}')">تعديل الحالة</button>
-                        `;
-
-                        document.getElementById('shipmentsList').appendChild(shipmentDiv);
-                    });
-                })
-                .catch((error) => {
-                    console.error("خطأ أثناء تحميل الشحنات: ", error);
+            db.collection('shipments').get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const shipment = doc.data();
+                    const clientDiv = document.createElement('div');
+                    clientDiv.classList.add('client');
+                    clientDiv.innerHTML = `
+                        <h3>العميل: ${shipment.username}</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>اسم العميل</th>
+                                    <th>عنوان العميل</th>
+                                    <th>التحصيل بالشحن</th>
+                                    <th>حالة الشحنة</th>
+                                    <th>تعديل الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${shipment.username}</td>
+                                    <td>${shipment.address}</td>
+                                    <td>${shipment.payment}</td>
+                                    <td>
+                                        <input type="text" value="${shipment.status}" id="status-${doc.id}" readonly />
+                                    </td>
+                                    <td>
+                                        <button onclick="updateShipmentStatus('${doc.id}')">تعديل الحالة</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                    container.appendChild(clientDiv);
                 });
-        }
-
-        // تعديل حالة الشحنة
-        function updateShipmentStatus(shipmentId) {
-            const status = document.getElementById(`status-${shipmentId}`).value;
-
-            db.collection("shipments").doc(shipmentId).update({
-                status: status
-            })
-            .then(() => {
-                alert('تم تعديل حالة الشحنة');
-            })
-            .catch((error) => {
-                console.error("خطأ أثناء تعديل الحالة: ", error);
+            }).catch((error) => {
+                console.error("خطأ في جلب الشحنات: ", error);
             });
         }
 
-        // تحميل الشحنات عند تحميل الصفحة
-        window.onload = function() {
-            loadShipments();
-        };
+        // تحديث حالة الشحنة
+        function updateShipmentStatus(shipmentId) {
+            const newStatus = document.getElementById(`status-${shipmentId}`).value;
+
+            // تحديث البيانات في Firestore
+            db.collection('shipments').doc(shipmentId).update({
+                status: newStatus
+            }).then(() => {
+                alert("تم تحديث حالة الشحنة بنجاح.");
+            }).catch((error) => {
+                console.error("خطأ في تحديث حالة الشحنة: ", error);
+                alert("حدث خطأ أثناء تحديث الحالة.");
+            });
+        }
+
+        // استدعاء عرض الشحنات عند تحميل الصفحة
+        window.onload = displayClients;
     </script>
 </body>
 </html>
