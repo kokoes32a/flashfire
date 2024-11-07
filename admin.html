@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة الأدمن</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- إضافة مكتبة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
-        <h2>مرحباً بك في صفحة الأدمن</h2>
-        <p>إدارة المستخدمين</p>
-        <button onclick="getUsers()">عرض المستخدمين</button>
-        <ul id="userList"></ul>
+        <h2>شحنات العملاء</h2>
+        <div id="shipmentsList"></div>
     </div>
 
-    <!-- إعدادات Firebase وكود التهيئة -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
@@ -29,24 +25,54 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // جلب جميع المستخدمين من Firestore وعرضهم
-        function getUsers() {
-            db.collection("users").get().then((querySnapshot) => {
-                const userList = document.getElementById("userList");
-                userList.innerHTML = ''; // مسح القائمة السابقة
-                querySnapshot.forEach((doc) => {
-                    const userData = doc.data();
-                    const li = document.createElement("li");
-                    li.textContent = `اسم المستخدم: ${userData.username}`;
-                    userList.appendChild(li);
+        // عرض الشحنات لكل العملاء
+        function loadShipments() {
+            db.collection("shipments")
+                .get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const shipment = doc.data();
+                        const shipmentDiv = document.createElement('div');
+                        shipmentDiv.classList.add('shipment');
+
+                        shipmentDiv.innerHTML = `
+                            <h3>عميل: ${shipment.clientName}</h3>
+                            <p>العنوان: ${shipment.address}</p>
+                            <p>التحصيل: ${shipment.amount}</p>
+                            <p>الحالة: <input type="text" value="${shipment.status}" id="status-${doc.id}" /></p>
+                            <button onclick="updateShipmentStatus('${doc.id}')">تعديل الحالة</button>
+                        `;
+
+                        document.getElementById('shipmentsList').appendChild(shipmentDiv);
+                    });
+                })
+                .catch((error) => {
+                    console.error("خطأ أثناء تحميل الشحنات: ", error);
                 });
-            }).catch((error) => {
-                console.error("خطأ في جلب المستخدمين: ", error);
+        }
+
+        // تعديل حالة الشحنة
+        function updateShipmentStatus(shipmentId) {
+            const status = document.getElementById(`status-${shipmentId}`).value;
+
+            db.collection("shipments").doc(shipmentId).update({
+                status: status
+            })
+            .then(() => {
+                alert('تم تعديل حالة الشحنة');
+            })
+            .catch((error) => {
+                console.error("خطأ أثناء تعديل الحالة: ", error);
             });
         }
+
+        // تحميل الشحنات عند تحميل الصفحة
+        window.onload = function() {
+            loadShipments();
+        };
     </script>
 </body>
 </html>
