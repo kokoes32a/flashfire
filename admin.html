@@ -45,11 +45,12 @@
                 });
 
                 // عرض كل اسم عميل في مربع أو زر
-                clients.forEach((clientName) => {
-                    const clientButton = document.createElement('button');
-                    clientButton.textContent = clientName;
-                    clientButton.onclick = () => viewClientShipments(clientName); // عند الضغط، عرض الشحنات
-                    container.appendChild(clientButton);
+             clients.forEach((clientName) => {
+    const clientButton = document.createElement('button');
+    clientButton.textContent = clientName;
+    // تعديل الرابط ليتضمن اسم العميل
+    clientButton.innerHTML = `<a href="client_shipments.html?username=${clientName}">عرض شحنات العميل</a>`;
+    container.appendChild(clientButton);
                 });
             });
         }
