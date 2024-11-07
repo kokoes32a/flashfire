@@ -6,13 +6,15 @@
     <title>صفحة العميل</title>
     <link rel="stylesheet" href="styles.css">
     <!-- إضافة مكتبة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
 </head>
 <body>
-    <h2>مرحبا بك في صفحة العميل</h2>
-    <button onclick="addShipment()">إضافة شحنة جديدة</button>
-    <div id="shipments"></div>
+    <div class="container">
+        <h2>مرحباً بك في صفحة العميل</h2>
+        <p>اسم المستخدم: <span id="usernameDisplay"></span></p>
+        <button onclick="logout()">تسجيل الخروج</button>
+    </div>
 
     <!-- إعدادات Firebase وكود التهيئة -->
     <script>
@@ -20,7 +22,7 @@
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
             projectId: "flash2-d91cf",
-            storageBucket: "flash2-d91cf.firebasestorage.app",
+            storageBucket: "flash2-d91cf.appspot.com",
             messagingSenderId: "56061341567",
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
@@ -29,35 +31,21 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function addShipment() {
-            const shipmentDetails = prompt("أدخل تفاصيل الشحنة:");
-            if (shipmentDetails) {
-                db.collection("shipments").add({
-                    details: shipmentDetails,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                })
-                .then(() => {
-                    alert('تمت إضافة الشحنة بنجاح!');
-                    displayShipments();
-                })
-                .catch((error) => {
-                    alert("خطأ: " + error.message);
-                });
+        // جلب اسم المستخدم من localStorage وعرضه
+        window.onload = function() {
+            const username = localStorage.getItem('clientUsername');
+            if (username) {
+                document.getElementById('usernameDisplay').textContent = username;
+            } else {
+                window.location.href = 'index.html'; // إعادة التوجيه إذا لم يكن هناك اسم مستخدم مخزن
             }
-        }
+        };
 
-        function displayShipments() {
-            db.collection("shipments").get().then((querySnapshot) => {
-                let output = "";
-                querySnapshot.forEach((doc) => {
-                    output += `<p>${doc.data().details}</p>`;
-                });
-                document.getElementById("shipments").innerHTML = output;
-            });
+        // تسجيل الخروج
+        function logout() {
+            localStorage.removeItem('clientUsername');
+            window.location.href = 'index.html'; // العودة لصفحة تسجيل الدخول
         }
-
-        // عرض الشحنات عند تحميل الصفحة
-        displayShipments();
     </script>
 </body>
 </html>
