@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة الأدمن</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
@@ -44,8 +44,8 @@
 
         // وظيفة للتوجيه إلى صفحة الشحنات الخاصة بالعميل
         function viewClientShipments(username) {
-            localStorage.setItem('clientUsername', username); // تخزين اسم العميل في localStorage
-            window.location.href = 'client_shipments.html'; // التوجيه إلى صفحة الشحنات
+            // تمرير اسم العميل عبر عنوان URL
+            window.location.href = `client_shipments.html?username=${username}`;
         }
 
         displayClients(); // عرض قائمة العملاء عند تحميل الصفحة
