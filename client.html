@@ -84,7 +84,7 @@
                 name: name,
                 address: address,
                 collection: collection,
-                status: 'في انتظار التحميل' // حالة الشحنة ثابتة عند إضافتها
+                 status: '' // حالة الشحنة فارغة عند إضافتها
             };
 
             db.collection('shipments').add(shipment)
