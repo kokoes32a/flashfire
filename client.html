@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحة العميل</title>
+    <title>شحنات العميل</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- إضافة Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
-        <h2>شحناتك</h2>
+        <h2>شحنات العميل</h2>
         <table id="shipmentTable">
             <thead>
                 <tr>
@@ -24,11 +23,9 @@
             </thead>
             <tbody id="shipmentTableBody"></tbody>
         </table>
-        <button onclick="addNewShipment()">إضافة شحنة جديدة</button>
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
@@ -38,13 +35,19 @@
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
-        // تهيئة Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // تهيئة Firestore
+        const db = firebase.firestore();
 
-        const username = localStorage.getItem('clientUsername'); // تأكد من تخزين اسم المستخدم عند تسجيل الدخول
+        // قراءة اسم العميل من عنوان URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username'); // جلب اسم العميل من URL
 
-        // تحميل الشحنات عند فتح الصفحة
+        if (!username) {
+            alert("اسم العميل غير موجود!");
+            window.location.href = 'admin.html'; // إعادة التوجيه إذا لم يتم العثور على اسم العميل
+        }
+
+        // جلب الشحنات الخاصة بالعميل
         db.collection('shipments').where('username', '==', username).get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -59,42 +62,11 @@
                     <td>${name}</td>
                     <td>${address}</td>
                     <td>${collection}</td>
-                    <td>${status}</td>
+                    <td>${status || 'غير محدد'}</td>
                     <td><button onclick="deleteShipment('${name}')">حذف</button></td>
                 </tr>
             `;
             document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
-        }
-
-        function addNewShipment() {
-            const name = prompt("اسم العميل:");
-            const address = prompt("عنوان العميل:");
-            const collection = prompt("التحصيل بالشحن:");
-
-            if (name && address && collection) {
-                addShipment(name, address, collection);
-            } else {
-                alert("يرجى إدخال جميع المعلومات المطلوبة.");
-            }
-        }
-
-        function addShipment(name, address, collection) {
-            const shipment = {
-                username: username,
-                name: name,
-                address: address,
-                collection: collection,
-                status: 'في انتظار التحميل' // حالة الشحنة ثابتة عند إضافتها
-            };
-
-            db.collection('shipments').add(shipment)
-                .then(() => {
-                    console.log('تم إضافة الشحنة بنجاح!');
-                    addRowToTable(name, address, collection, shipment.status);
-                })
-                .catch((error) => {
-                    console.error('خطأ في إضافة الشحنة: ', error);
-                });
         }
 
         function deleteShipment(name) {
@@ -104,7 +76,7 @@
                         db.collection('shipments').doc(doc.id).delete()
                             .then(() => {
                                 console.log('تم حذف الشحنة بنجاح!');
-                                location.reload(); // إعادة تحميل الصفحة لتحديث البيانات
+                                location.reload(); 
                             })
                             .catch((error) => {
                                 console.error('خطأ في حذف الشحنة: ', error);
