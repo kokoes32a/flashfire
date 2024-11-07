@@ -33,37 +33,41 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(); // استخدام Firestore
 
+        // اسم المستخدم وكلمة المرور الثابتة للأدمن
+        const adminUsername = "admin";
+        const adminPassword = "admin123";
+
         // كود تسجيل الدخول
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // التحقق من البيانات في Firestore
-            db.collection("users")
-                .where("username", "==", username)
-                .where("password", "==", password)
-                .get()
-                .then((querySnapshot) => {
-                    if (!querySnapshot.empty) {
-                        const user = querySnapshot.docs[0].data();
-                        // إذا كانت بيانات الدخول صحيحة
-                        alert('تم تسجيل الدخول بنجاح');
-                        localStorage.setItem('clientUsername', username);
-
-                        // التحقق إذا كان المستخدم هو "أدمن" أم لا
-                        if (user.role === 'admin') {
-                            window.location.href = 'admin.html'; // توجيه الأدمن إلى صفحة الأدمن
-                        } else {
+            // تحقق مما إذا كان المستخدم أدمن
+            if (username === adminUsername && password === adminPassword) {
+                // إذا كان المستخدم أدمن
+                alert('تم تسجيل الدخول كأدمن');
+                window.location.href = 'admin.html'; // توجيه إلى صفحة الأدمن
+            } else {
+                // التحقق من البيانات في Firestore للمستخدمين العاديين
+                db.collection("users")
+                    .where("username", "==", username)
+                    .where("password", "==", password)
+                    .get()
+                    .then((querySnapshot) => {
+                        if (!querySnapshot.empty) {
+                            // إذا كانت بيانات الدخول صحيحة للمستخدم العادي
+                            alert('تم تسجيل الدخول بنجاح');
+                            localStorage.setItem('clientUsername', username);
                             window.location.href = 'client.html'; // توجيه العميل إلى صفحة العميل
+                        } else {
+                            // إذا كانت البيانات غير صحيحة
+                            alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
                         }
-                    } else {
-                        // إذا كانت البيانات غير صحيحة
-                        alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
-                    }
-                })
-                .catch((error) => {
-                    console.error("خطأ أثناء التحقق من بيانات الدخول: ", error);
-                });
+                    })
+                    .catch((error) => {
+                        console.error("خطأ أثناء التحقق من بيانات الدخول: ", error);
+                    });
+            }
         }
 
         // كود تسجيل العميل الجديد
