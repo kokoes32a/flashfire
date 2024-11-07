@@ -6,8 +6,8 @@
     <title>صفحة الأدمن</title>
     <link rel="stylesheet" href="styles.css">
     <!-- إضافة Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
@@ -30,66 +30,114 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(); // تهيئة Firestore
 
-        // عرض الشحنات
+        // دالة لعرض قائمة أسماء العملاء
         function displayClients() {
             const container = document.getElementById('clientsContainer');
             container.innerHTML = ''; // تنظيف المحتوى السابق
 
+            // جلب كل العملاء من قاعدة البيانات
             db.collection('shipments').get().then((querySnapshot) => {
+                const clients = new Set(); // لتخزين أسماء العملاء الفريدة
+
                 querySnapshot.forEach((doc) => {
                     const shipment = doc.data();
-                    const clientDiv = document.createElement('div');
-                    clientDiv.classList.add('client');
-                    clientDiv.innerHTML = `
-                        <h3>العميل: ${shipment.username}</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>اسم العميل</th>
-                                    <th>عنوان العميل</th>
-                                    <th>التحصيل بالشحن</th>
-                                    <th>حالة الشحنة</th>
-                                    <th>تعديل الحالة</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>${shipment.username}</td>
-                                    <td>${shipment.address}</td>
-                                    <td>${shipment.payment}</td>
-                                    <td>
-                                        <input type="text" value="${shipment.status}" id="status-${doc.id}" readonly />
-                                    </td>
-                                    <td>
-                                        <button onclick="updateShipmentStatus('${doc.id}')">تعديل الحالة</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                    container.appendChild(clientDiv);
+                    clients.add(shipment.username); // إضافة اسم العميل للمجموعة
                 });
-            }).catch((error) => {
-                console.error("خطأ في جلب الشحنات: ", error);
+
+                // عرض كل اسم عميل في مربع أو زر
+                clients.forEach((clientName) => {
+                    const clientButton = document.createElement('button');
+                    clientButton.textContent = clientName;
+                    clientButton.onclick = () => viewClientShipments(clientName); // عند الضغط، عرض الشحنات
+                    container.appendChild(clientButton);
+                });
             });
         }
 
-        // تحديث حالة الشحنة
-        function updateShipmentStatus(shipmentId) {
-            const newStatus = document.getElementById(`status-${shipmentId}`).value;
+        // دالة لعرض شحنات العميل بعد الضغط على اسمه
+        function viewClientShipments(clientName) {
+            const container = document.getElementById('clientsContainer');
+            container.innerHTML = ''; // تنظيف المحتوى السابق
 
-            // تحديث البيانات في Firestore
-            db.collection('shipments').doc(shipmentId).update({
+            const title = document.createElement('h3');
+            title.textContent = `شحنات العميل: ${clientName}`;
+            container.appendChild(title);
+
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>اسم العميل</th>
+                        <th>عنوان العميل</th>
+                        <th>التحصيل بالشحن</th>
+                        <th>حالة الشحنة</th>
+                        <th>تعديل الحالة</th>
+                        <th>عمليات</th>
+                    </tr>
+                </thead>
+                <tbody id="shipmentTableBody"></tbody>
+            `;
+            container.appendChild(table);
+
+            // جلب شحنات هذا العميل فقط
+            db.collection('shipments').where('username', '==', clientName).get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        const shipment = doc.data();
+                        addRowToTable(shipment.name, shipment.address, shipment.collection, shipment.status, doc.id);
+                    });
+                });
+        }
+
+        // دالة لإضافة صف للشحنة في الجدول
+        function addRowToTable(name, address, collection, status, docId) {
+            const newRow = `
+                <tr>
+                    <td>${name}</td>
+                    <td>${address}</td>
+                    <td>${collection}</td>
+                    <td>${status || 'لم يتم تحديد الحالة بعد'}</td>
+                    <td>
+                        <select onchange="updateShipmentStatus('${docId}', this.value)">
+                            <option value="in queue" ${status === 'in queue' ? 'selected' : ''}>في الانتظار</option>
+                            <option value="done" ${status === 'done' ? 'selected' : ''}>تم الإنجاز</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button onclick="deleteShipment('${docId}')">حذف</button>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
+        }
+
+        // دالة لتحديث حالة الشحنة
+        function updateShipmentStatus(docId, newStatus) {
+            db.collection('shipments').doc(docId).update({
                 status: newStatus
-            }).then(() => {
-                alert("تم تحديث حالة الشحنة بنجاح.");
-            }).catch((error) => {
-                console.error("خطأ في تحديث حالة الشحنة: ", error);
-                alert("حدث خطأ أثناء تحديث الحالة.");
+            })
+            .then(() => {
+                console.log('تم تحديث الحالة بنجاح!');
+                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim()); // إعادة تحميل شحنات العميل بعد التعديل
+            })
+            .catch((error) => {
+                console.error('خطأ في تحديث الحالة: ', error);
             });
         }
 
-        // استدعاء عرض الشحنات عند تحميل الصفحة
+        // دالة لحذف الشحنة
+        function deleteShipment(docId) {
+            db.collection('shipments').doc(docId).delete()
+            .then(() => {
+                console.log('تم حذف الشحنة بنجاح!');
+                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim()); // إعادة تحميل شحنات العميل بعد الحذف
+            })
+            .catch((error) => {
+                console.error('خطأ في حذف الشحنة: ', error);
+            });
+        }
+
+        // استدعاء دالة displayClients عند تحميل الصفحة
         window.onload = displayClients;
     </script>
 </body>
