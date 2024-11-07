@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شحنات العميل</title>
+    <title>صفحة العميل</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
@@ -24,27 +24,23 @@
             <tbody id="shipmentTableBody"></tbody>
         </table>
         <button onclick="addNewShipment()">إضافة شحنة جديدة</button>
-        <button onclick="goBack()">رجوع</button>
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
             projectId: "flash2-d91cf",
-            storageBucket: "flash2-d91cf.appspot.com",
+            storageBucket: "flash2-d91cf.firebasestorage.app",
             messagingSenderId: "56061341567",
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
-        // تهيئة Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // تهيئة Firestore
+        const db = firebase.firestore(); 
 
-        const username = localStorage.getItem('clientUsername'); // تأكد من تخزين اسم المستخدم عند تسجيل الدخول
+        const username = localStorage.getItem('clientUsername');
 
-        // تحميل الشحنات عند فتح الصفحة
         db.collection('shipments').where('username', '==', username).get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -59,7 +55,7 @@
                     <td>${name}</td>
                     <td>${address}</td>
                     <td>${collection}</td>
-                    <td><input type="text" id="status" value="${status}" readonly></td>
+                    <td>${status}</td>
                     <td><button onclick="deleteShipment('${name}')">حذف</button></td>
                 </tr>
             `;
@@ -84,7 +80,7 @@
                 name: name,
                 address: address,
                 collection: collection,
-                status: '' // حالة الشحنة تكون فارغة في البداية
+                status: ''
             };
 
             db.collection('shipments').add(shipment)
@@ -104,25 +100,13 @@
                         db.collection('shipments').doc(doc.id).delete()
                             .then(() => {
                                 console.log('تم حذف الشحنة بنجاح!');
-                                location.reload(); // إعادة تحميل الصفحة لتحديث البيانات
+                                location.reload(); 
                             })
                             .catch((error) => {
                                 console.error('خطأ في حذف الشحنة: ', error);
                             });
                     });
                 });
-        }
-
-        // زر الرجوع
-        function goBack() {
-            // التحقق من الصفحة السابقة المخزنة في localStorage
-            const previousPage = localStorage.getItem("previousPage");
-
-            if (previousPage === "adminClientsPage") {
-                window.location.href = "admin.html"; // العودة إلى صفحة العملاء
-            } else {
-                window.location.href = "login.html"; // إذا كانت صفحة تسجيل الدخول
-            }
         }
     </script>
 </body>
