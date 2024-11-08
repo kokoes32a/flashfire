@@ -1,6 +1,6 @@
 // إعداد Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js";
 
 // إعداد بيانات Firebase الخاصة بمشروعك
 const firebaseConfig = {
