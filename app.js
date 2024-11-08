@@ -1,99 +1,55 @@
-// إعداد Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js";
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
-// إعداد بيانات Firebase الخاصة بمشروعك
 const firebaseConfig = {
- apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
-            authDomain: "flash2-d91cf.firebaseapp.com",
-            projectId: "flash2-d91cf",
-            storageBucket: "flash2-d91cf.appspot.com",
-            messagingSenderId: "56061341567",
-            appId: "1:56061341567:web:54ab9815e76f0225b4344a"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
-// تهيئة Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// DOM Elements
-const shipmentList = document.getElementById("shipment-list");
-const addShipmentForm = document.getElementById("add-shipment-form");
-const shipmentNameInput = document.getElementById("shipment-name");
-const shipmentDescriptionInput = document.getElementById("shipment-description");
+async function fetchShipments() {
+  const shipmentsCol = collection(db, 'shipments');
+  const shipmentSnapshot = await getDocs(shipmentsCol);
+  const shipments = shipmentSnapshot.docs.map(doc => doc.data());
 
-// إضافة شحنة جديدة
-addShipmentForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  const statusCounts = {
+    "تم التسليم": 0,
+    "قيد التوصيل": 0,
+    "في المخزن": 0,
+    "إنتظار الشحن": 0,
+    "لم يتم التسليم": 0,
+    "إرتجاع": 0
+  };
 
-  const shipmentName = shipmentNameInput.value;
-  const shipmentDescription = shipmentDescriptionInput.value;
+  shipments.forEach(shipment => {
+    statusCounts[shipment.status] = (statusCounts[shipment.status] || 0) + 1;
+  });
 
-  try {
-    // إضافة شحنة جديدة إلى Firebase Firestore
-    await addDoc(collection(db, "shipments"), {
-      name: shipmentName,
-      description: shipmentDescription,
-      createdAt: new Date()
-    });
-    alert("تم إضافة الشحنة بنجاح");
-    shipmentNameInput.value = "";
-    shipmentDescriptionInput.value = "";
-    loadShipments();
-  } catch (error) {
-    console.error("حدث خطأ أثناء إضافة الشحنة:", error);
-  }
-});
+  displayChart(statusCounts);
+}
 
-// تحميل الشحنات من Firestore وعرضها
-async function loadShipments() {
-  const querySnapshot = await getDocs(collection(db, "shipments"));
-  shipmentList.innerHTML = "";
-
-  querySnapshot.forEach((doc) => {
-    const shipment = doc.data();
-    const li = document.createElement("li");
-    li.textContent = `${shipment.name}: ${shipment.description}`;
-    
-    // إضافة أزرار التعديل والحذف
-    const editButton = document.createElement("button");
-    editButton.textContent = "تعديل";
-    editButton.onclick = () => editShipment(doc.id, shipment);
-
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "حذف";
-    deleteButton.onclick = () => deleteShipment(doc.id);
-
-    li.appendChild(editButton);
-    li.appendChild(deleteButton);
-    shipmentList.appendChild(li);
+function displayChart(statusCounts) {
+  const ctx = document.getElementById('shipmentChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(statusCounts),
+      datasets: [{
+        label: 'عدد الشحنات',
+        data: Object.values(statusCounts),
+        backgroundColor: ['#4caf50', '#f44336', '#ffeb3b', '#2196f3', '#ff9800', '#9c27b0']
+      }]
+    },
+    options: {
+      responsive: true
+    }
   });
 }
 
-// تعديل الشحنة
-async function editShipment(shipmentId, shipment) {
-  const newName = prompt("أدخل اسم الشحنة الجديد:", shipment.name);
-  const newDescription = prompt("أدخل الوصف الجديد:", shipment.description);
-
-  if (newName && newDescription) {
-    const shipmentRef = doc(db, "shipments", shipmentId);
-    await updateDoc(shipmentRef, {
-      name: newName,
-      description: newDescription
-    });
-    alert("تم تعديل الشحنة بنجاح");
-    loadShipments();
-  }
-}
-
-// حذف الشحنة
-async function deleteShipment(shipmentId) {
-  const shipmentRef = doc(db, "shipments", shipmentId);
-  await deleteDoc(shipmentRef);
-  alert("تم حذف الشحنة بنجاح");
-  loadShipments();
-}
-
-// تحميل الشحنات عند تحميل الصفحة
-loadShipments();
-
+fetchShipments();
