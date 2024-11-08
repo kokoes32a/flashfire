@@ -1,1 +1,99 @@
+// إعداد Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+// إعداد بيانات Firebase الخاصة بمشروعك
+const firebaseConfig = {
+  apiKey: "API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+
+// تهيئة Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// DOM Elements
+const shipmentList = document.getElementById("shipment-list");
+const addShipmentForm = document.getElementById("add-shipment-form");
+const shipmentNameInput = document.getElementById("shipment-name");
+const shipmentDescriptionInput = document.getElementById("shipment-description");
+
+// إضافة شحنة جديدة
+addShipmentForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const shipmentName = shipmentNameInput.value;
+  const shipmentDescription = shipmentDescriptionInput.value;
+
+  try {
+    // إضافة شحنة جديدة إلى Firebase Firestore
+    await addDoc(collection(db, "shipments"), {
+      name: shipmentName,
+      description: shipmentDescription,
+      createdAt: new Date()
+    });
+    alert("تم إضافة الشحنة بنجاح");
+    shipmentNameInput.value = "";
+    shipmentDescriptionInput.value = "";
+    loadShipments();
+  } catch (error) {
+    console.error("حدث خطأ أثناء إضافة الشحنة:", error);
+  }
+});
+
+// تحميل الشحنات من Firestore وعرضها
+async function loadShipments() {
+  const querySnapshot = await getDocs(collection(db, "shipments"));
+  shipmentList.innerHTML = "";
+
+  querySnapshot.forEach((doc) => {
+    const shipment = doc.data();
+    const li = document.createElement("li");
+    li.textContent = `${shipment.name}: ${shipment.description}`;
+    
+    // إضافة أزرار التعديل والحذف
+    const editButton = document.createElement("button");
+    editButton.textContent = "تعديل";
+    editButton.onclick = () => editShipment(doc.id, shipment);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "حذف";
+    deleteButton.onclick = () => deleteShipment(doc.id);
+
+    li.appendChild(editButton);
+    li.appendChild(deleteButton);
+    shipmentList.appendChild(li);
+  });
+}
+
+// تعديل الشحنة
+async function editShipment(shipmentId, shipment) {
+  const newName = prompt("أدخل اسم الشحنة الجديد:", shipment.name);
+  const newDescription = prompt("أدخل الوصف الجديد:", shipment.description);
+
+  if (newName && newDescription) {
+    const shipmentRef = doc(db, "shipments", shipmentId);
+    await updateDoc(shipmentRef, {
+      name: newName,
+      description: newDescription
+    });
+    alert("تم تعديل الشحنة بنجاح");
+    loadShipments();
+  }
+}
+
+// حذف الشحنة
+async function deleteShipment(shipmentId) {
+  const shipmentRef = doc(db, "shipments", shipmentId);
+  await deleteDoc(shipmentRef);
+  alert("تم حذف الشحنة بنجاح");
+  loadShipments();
+}
+
+// تحميل الشحنات عند تحميل الصفحة
+loadShipments();
 
