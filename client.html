@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="container">
-        <h2 class="section-title">شحناتك</h2>
+        <h2>شحناتك</h2>
         <table id="shipmentTable">
             <thead>
                 <tr>
@@ -24,15 +24,98 @@
             <tbody id="shipmentTableBody"></tbody>
         </table>
         
-        <div class="add-shipment-form">
-            <h3 class="section-title">إضافة شحنة جديدة</h3>
-            <input type="text" id="shipmentName" placeholder="اسم العميل" class="input-field">
-            <input type="text" id="shipmentAddress" placeholder="عنوان العميل" class="input-field">
-            <input type="text" id="shipmentCollection" placeholder="التحصيل بالشحن" class="input-field">
-            <button onclick="addNewShipment()" class="submit-button">إضافة شحنة</button>
-        </div>
+        <!-- إضافة الحقول في نفس الصفحة -->
+        <h3>إضافة شحنة جديدة</h3>
+        <input type="text" id="shipmentName" placeholder="اسم العميل">
+        <input type="text" id="shipmentAddress" placeholder="عنوان العميل">
+        <input type="text" id="shipmentCollection" placeholder="التحصيل بالشحن">
+        <button onclick="addNewShipment()">إضافة شحنة</button>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
+            authDomain: "flash2-d91cf.firebaseapp.com",
+            projectId: "flash2-d91cf",
+            storageBucket: "flash2-d91cf.firebasestorage.app",
+            messagingSenderId: "56061341567",
+            appId: "1:56061341567:web:54ab9815e76f0225b4344a"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const username = localStorage.getItem('clientUsername');
+
+        db.collection('shipments').where('username', '==', username).get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const shipment = doc.data();
+                    addRowToTable(shipment.name, shipment.address, shipment.collection, shipment.status);
+                });
+            });
+
+        function addRowToTable(name, address, collection, status) {
+            const newRow = `
+                <tr>
+                    <td>${name}</td>
+                    <td>${address}</td>
+                    <td>${collection}</td>
+                    <td>${status}</td>
+                    <td><button onclick="deleteShipment('${name}')">حذف</button></td>
+                </tr>
+            `;
+            document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
+        }
+
+        function addNewShipment() {
+            const name = document.getElementById("shipmentName").value;
+            const address = document.getElementById("shipmentAddress").value;
+            const collection = document.getElementById("shipmentCollection").value;
+
+            if (name && address && collection) {
+                addShipment(name, address, collection);
+            } else {
+                alert("يرجى إدخال جميع المعلومات المطلوبة.");
+            }
+        }
+
+        function addShipment(name, address, collection) {
+            const shipment = {
+                username: username,
+                name: name,
+                address: address,
+                collection: collection,
+                status: 'في انتظار التحميل'
+            };
+
+            db.collection('shipments').add(shipment)
+                .then(() => {
+                    console.log('تم إضافة الشحنة بنجاح!');
+                    addRowToTable(name, address, collection, shipment.status);
+                    document.getElementById("shipmentName").value = "";
+                    document.getElementById("shipmentAddress").value = "";
+                    document.getElementById("shipmentCollection").value = "";
+                })
+                .catch((error) => {
+                    console.error('خطأ في إضافة الشحنة: ', error);
+                });
+        }
+
+        function deleteShipment(name) {
+            db.collection('shipments').where('name', '==', name).get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        db.collection('shipments').doc(doc.id).delete()
+                            .then(() => {
+                                console.log('تم حذف الشحنة بنجاح!');
+                                location.reload();
+                            })
+                            .catch((error) => {
+                                console.error('خطأ في حذف الشحنة: ', error);
+                            });
+                    });
+                });
+        }
+    </script>
 </body>
 </html>
