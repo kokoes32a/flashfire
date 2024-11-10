@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة العميل</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- إضافة Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
@@ -24,11 +23,16 @@
             </thead>
             <tbody id="shipmentTableBody"></tbody>
         </table>
-        <button onclick="addNewShipment()">إضافة شحنة جديدة</button>
+        
+        <!-- إضافة الحقول في نفس الصفحة -->
+        <h3>إضافة شحنة جديدة</h3>
+        <input type="text" id="shipmentName" placeholder="اسم العميل">
+        <input type="text" id="shipmentAddress" placeholder="عنوان العميل">
+        <input type="text" id="shipmentCollection" placeholder="التحصيل بالشحن">
+        <button onclick="addNewShipment()">إضافة شحنة</button>
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
@@ -38,13 +42,10 @@
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
-        // تهيئة Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // تهيئة Firestore
+        const db = firebase.firestore();
+        const username = localStorage.getItem('clientUsername');
 
-        const username = localStorage.getItem('clientUsername'); // تأكد من تخزين اسم المستخدم عند تسجيل الدخول
-
-        // تحميل الشحنات عند فتح الصفحة
         db.collection('shipments').where('username', '==', username).get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -67,9 +68,9 @@
         }
 
         function addNewShipment() {
-            const name = prompt("اسم العميل:");
-            const address = prompt("عنوان العميل:");
-            const collection = prompt("التحصيل بالشحن:");
+            const name = document.getElementById("shipmentName").value;
+            const address = document.getElementById("shipmentAddress").value;
+            const collection = document.getElementById("shipmentCollection").value;
 
             if (name && address && collection) {
                 addShipment(name, address, collection);
@@ -84,13 +85,16 @@
                 name: name,
                 address: address,
                 collection: collection,
-                status: 'في انتظار التحميل' // حالة الشحنة ثابتة عند إضافتها
+                status: 'في انتظار التحميل'
             };
 
             db.collection('shipments').add(shipment)
                 .then(() => {
                     console.log('تم إضافة الشحنة بنجاح!');
                     addRowToTable(name, address, collection, shipment.status);
+                    document.getElementById("shipmentName").value = "";
+                    document.getElementById("shipmentAddress").value = "";
+                    document.getElementById("shipmentCollection").value = "";
                 })
                 .catch((error) => {
                     console.error('خطأ في إضافة الشحنة: ', error);
@@ -104,7 +108,7 @@
                         db.collection('shipments').doc(doc.id).delete()
                             .then(() => {
                                 console.log('تم حذف الشحنة بنجاح!');
-                                location.reload(); // إعادة تحميل الصفحة لتحديث البيانات
+                                location.reload();
                             })
                             .catch((error) => {
                                 console.error('خطأ في حذف الشحنة: ', error);
