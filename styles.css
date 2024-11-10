@@ -1,177 +1,87 @@
-/* Reset some default values */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* إعدادات عامة */
 body {
-    font-family: 'Arial', sans-serif;
-    background: url('https://images.unsplash.com/photo-1516151944206-4c3ff621d66f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&q=80&w=1080') no-repeat center center fixed; /* صورة خلفية */
-    background-size: cover; /* اجعل الخلفية تغطي الصفحة بالكامل */
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 800px;
-    margin: auto;
-    background: rgba(255, 255, 255, 0.9); /* اجعل الخلفية بيضاء مع بعض الشفافية */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: #f7f9fc;
     color: #333;
-    margin-bottom: 20px; /* مسافة أسفل العنوان */
-}
-
-.client h3 {
     display: flex;
-    align-items: center; /* محاذاة الأيقونة */
-}
-
-.client i {
-    margin-left: 10px; /* مسافة بين النص والأيقونة */
-    color: #007bff; /* تغيير لون الأيقونة */
-}
-
-table {
-    width: 100%;
-    margin-top: 20px; /* مسافة أعلى الجدول */
-    border-collapse: collapse; /* إزالة المسافات بين خلايا الجدول */
-}
-
-th, td {
-    padding: 15px; /* زيادة padding داخل خلايا الجدول */
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-button {
-    background: linear-gradient(90deg, #007bff, #0056b3);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    width: 100%;
-    margin-top: 20px; /* مسافة أعلى الزر */
-}
-
-button:hover {
-    background: linear-gradient(90deg, #0056b3, #003f7f);
-}
-
-/* تحسين مظهر الأيقونات */
-button i {
-    margin-right: 5px; /* مسافة بين الأيقونة والنص */
-}
-
-/* Reset some default values */
-* {
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right, #e2e2e2, #ffffff);
-    margin: 0;
-    padding: 20px;
 }
 
 .container {
+    width: 90%;
     max-width: 800px;
-    margin: auto;
-    background: #ffffff;
+    background-color: #ffffff;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
-h2, h3 {
-    text-align: center;
-    color: #333;
+.section-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #3498db;
     margin-bottom: 20px;
 }
 
-.form-container {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px; /* إضافة مسافة أسفل النموذج */
-}
-
-label {
-    display: block;
-    margin: 10px 0 5px;
-}
-
-input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-button {
-    background: linear-gradient(90deg, #007bff, #0056b3);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    width: 100%;
-}
-
-button:hover {
-    background: linear-gradient(90deg, #0056b3, #003f7f);
-}
-
-/* إضافة مسافات بين الجداول */
 table {
     width: 100%;
-    margin-top: 20px; /* مسافة أعلى الجدول */
-    border-collapse: collapse; /* إزالة المسافات بين خلايا الجدول */
+    border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
 th, td {
-    padding: 15px; /* زيادة padding داخل خلايا الجدول */
+    padding: 10px;
     border: 1px solid #ddd;
-    text-align: left;
 }
 
 th {
-    background-color: #f2f2f2;
-}
-.client {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin: 10px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-button {
-  margin-right: 5px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #007bff;
-  color: white;
+    background-color: #3498db;
+    color: #fff;
+    font-weight: bold;
 }
 
+td {
+    background-color: #f4f6f8;
+}
+
+.add-shipment-form {
+    background-color: #f4f6f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-field {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input-field:focus {
+    border-color: #3498db;
+    box-shadow: 0px 0px 5px rgba(52, 152, 219, 0.5);
+    outline: none;
+}
+
+.submit-button {
+    background-color: #3498db;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #2980b9;
+}
