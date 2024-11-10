@@ -1,63 +1,62 @@
-/* تصميم الحاوية */
+/* تنسيق الحاوية العامة */
 .container {
+    max-width: 800px;
     margin: auto;
     padding: 20px;
-    max-width: 800px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f0f8ff; /* لون أزرق فاتح للخلفية */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* تصميم العنوان */
-.container h2 {
+/* تنسيق العنوان */
+h2 {
+    color: #000080; /* لون أزرق غامق للنص */
     text-align: center;
-    font-family: 'Arial', sans-serif;
-    color: #333;
     margin-bottom: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    border-bottom: 2px solid #e2e2e2;
-    padding-bottom: 10px;
+    font-family: Arial, sans-serif;
 }
 
-/* تصميم الجدول */
+/* تنسيق الجدول */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
 }
 
-table, th, td {
-    border: 1px solid #ddd;
-}
-
-th, td {
+table th, table td {
     padding: 12px;
-    text-align: center;
-    font-family: 'Arial', sans-serif;
-}
-
-th {
-    background-color: #4CAF50;
-    color: white;
-}
-
-td {
-    background-color: #f2f2f2;
-}
-
-/* زر إضافة شحنة جديدة */
-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
     font-size: 16px;
+}
+
+table th {
+    background-color: #007acc; /* لون أزرق فاتح للعناوين */
+    color: white;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #e0f7ff; /* تأثير عند التمرير */
+}
+
+/* تنسيق الأزرار */
+button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007acc; /* لون أزرق للأزرار */
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #005f99; /* لون عند التمرير فوق الزر */
 }
