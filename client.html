@@ -30,6 +30,9 @@
         <input type="text" id="shipmentAddress" placeholder="عنوان العميل">
         <input type="text" id="shipmentCollection" placeholder="التحصيل بالشحن">
         <button onclick="addNewShipment()">إضافة شحنة</button>
+
+        <!-- زر الشات -->
+        <button onclick="openChat()">التحدث لخدمة العملاء</button>
     </div>
 
     <script>
@@ -115,6 +118,10 @@
                             });
                     });
                 });
+        }
+
+        function openChat() {
+            window.location.href = "chat.html"; // الانتقال إلى صفحة الشات
         }
     </script>
 </body>
