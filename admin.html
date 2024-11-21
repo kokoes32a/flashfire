@@ -5,12 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة الأدمن</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h2>إدارة شحنات العملاء</h2>
+    <div class="sidebar">
+        <h2>لوحة التحكم</h2>
+        <ul>
+            <li><a href="#"><i class="fas fa-tachometer-alt"></i> الرئيسية</a></li>
+            <li><a href="#"><i class="fas fa-box"></i> الشحنات</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> العملاء</a></li>
+            <li><a href="#"><i class="fas fa-chart-line"></i> الإحصاءات</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> الإعدادات</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <h2>مرحباً، الأدمن</h2>
+            <button>تسجيل خروج</button>
+        </div>
+        
+        <div class="cards">
+            <div class="card">
+                <h3>إجمالي الشحنات</h3>
+                <p>8,98,879</p>
+            </div>
+            <div class="card">
+                <h3>الأرباح</h3>
+                <p>$32,000.89</p>
+            </div>
+            <div class="card">
+                <h3>الطلبات الأخيرة</h3>
+                <p>14 طلب جديد</p>
+            </div>
+        </div>
+        
+        <h3>إدارة شحنات العملاء</h3>
         <div id="clientsContainer"></div>
         
         <h3>الرسائل</h3>
@@ -22,6 +52,8 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
