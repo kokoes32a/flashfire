@@ -67,10 +67,9 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // دالة لعرض قائمة العملاء
         function displayClients() {
             const container = document.getElementById('clientsContainer');
-            container.innerHTML = ''; // تنظيف المحتوى السابق
+            container.innerHTML = ''; 
 
             db.collection('shipments').get().then((querySnapshot) => {
                 const clients = new Set();
@@ -88,10 +87,9 @@
             });
         }
 
-        // دالة لعرض شحنات العميل بعد الضغط على اسمه
         function viewClientShipments(clientName) {
             const container = document.getElementById('clientsContainer');
-            container.innerHTML = ''; // تنظيف المحتوى السابق
+            container.innerHTML = ''; 
 
             const title = document.createElement('h3');
             title.textContent = `شحنات العميل: ${clientName}`;
@@ -121,101 +119,9 @@
                     });
                 });
 
-            displayMessages(clientName);  // عرض الرسائل الخاصة بالعميل
+            displayMessages(clientName);  
         }
 
-        // دالة لإضافة صف للشحنة في الجدول
         function addRowToTable(name, address, collection, status, docId) {
             const newRow = `
                 <tr>
-                    <td>${name}</td>
-                    <td>${address}</td>
-                    <td>${collection}</td>
-                    <td>${status || 'لم يتم تحديد الحالة بعد'}</td>
-                    <td>
-                        <select onchange="updateShipmentStatus('${docId}', this.value)">
-                            <option value="in queue" ${status === 'in queue' ? 'selected' : ''}>في الانتظار</option>
-                            <option value="done" ${status === 'done' ? 'selected' : ''}>تم الإنجاز</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button onclick="deleteShipment('${docId}')">حذف</button>
-                    </td>
-                </tr>
-            `;
-            document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
-        }
-
-        // دالة لتحديث حالة الشحنة
-        function updateShipmentStatus(docId, newStatus) {
-            db.collection('shipments').doc(docId).update({
-                status: newStatus
-            })
-            .then(() => {
-                console.log('تم تحديث الحالة بنجاح!');
-                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim());
-            })
-            .catch((error) => {
-                console.error('خطأ في تحديث الحالة: ', error);
-            });
-        }
-
-        // دالة لحذف الشحنة
-        function deleteShipment(docId) {
-            db.collection('shipments').doc(docId).delete()
-            .then(() => {
-                console.log('تم حذف الشحنة بنجاح!');
-                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim());
-            })
-            .catch((error) => {
-                console.error('خطأ في حذف الشحنة: ', error);
-            });
-        }
-
-        // دالة لعرض الرسائل بين العميل والأدمن
-        function displayMessages(clientName) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.innerHTML = ''; // تنظيف المحتوى السابق
-
-            db.collection('messages')
-                .where('recipient', '==', clientName)
-                .orderBy('timestamp', 'asc')
-                .onSnapshot((snapshot) => {
-                    snapshot.forEach((doc) => {
-                        const message = doc.data();
-                        const messageDiv = document.createElement('div');
-                        messageDiv.textContent = `${message.sender}: ${message.text}`;
-                        messagesContainer.appendChild(messageDiv);
-                    });
-                });
-        }
-
-        // دالة لإرسال رسالة من الأدمن للعميل
-        function sendMessage() {
-            const clientName = document.querySelector('h3').textContent.split(':')[1].trim();
-            const messageText = document.getElementById('adminMessage').value;
-            const sender = 'Admin'; // اسم المستخدم للأدمن
-
-            if (messageText.trim() === '') {
-                alert('الرسالة فارغة!');
-                return;
-            }
-
-            db.collection('messages').add({
-                sender: sender,
-                recipient: clientName,
-                text: messageText,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                console.log('تم إرسال الرسالة بنجاح!');
-                document.getElementById('adminMessage').value = ''; // مسح النص بعد الإرسال
-            }).catch((error) => {
-                console.error('خطأ في إرسال الرسالة: ', error);
-            });
-        }
-
-        // استدعاء دالة displayClients عند تحميل الصفحة
-        window.onload = displayClients;
-    </script>
-</body>
-</html>
