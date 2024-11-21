@@ -1,27 +1,17 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحة الأدمن</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة العميل</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h2>شحناتك</h2>
-        <table id="shipmentTable">
-            <thead>
+    <div class="container mt-4">
+        <h2 class="text-center mb-4">شحناتك</h2>
+        <table id="shipmentTable" class="table table-striped mb-4">
+            <thead class="thead-light">
                 <tr>
                     <th>اسم العميل</th>
                     <th>عنوان العميل</th>
@@ -34,22 +24,35 @@
         </table>
         
         <!-- إضافة الحقول في نفس الصفحة -->
-        <h3>إضافة شحنة جديدة</h3>
-        <input type="text" id="shipmentName" placeholder="اسم العميل">
-        <input type="text" id="shipmentAddress" placeholder="عنوان العميل">
-        <input type="text" id="shipmentCollection" placeholder="التحصيل بالشحن">
-        <button onclick="addNewShipment()">إضافة شحنة</button>
+        <h3 class="mb-3">إضافة شحنة جديدة</h3>
+        <div class="form-row mb-3">
+            <div class="form-group col-md-4">
+                <input type="text" id="shipmentName" class="form-control" placeholder="اسم العميل">
+            </div>
+            <div class="form-group col-md-4">
+                <input type="text" id="shipmentAddress" class="form-control" placeholder="عنوان العميل">
+            </div>
+            <div class="form-group col-md-4">
+                <input type="text" id="shipmentCollection" class="form-control" placeholder="التحصيل بالشحن">
+            </div>
+        </div>
+        <button class="btn btn-primary mb-4" onclick="addNewShipment()">إضافة شحنة</button>
 
         <!-- زر الشات -->
-        <button onclick="openChat()">التحدث لخدمة العملاء</button>
+        <button class="btn btn-secondary" onclick="openChat()">التحدث لخدمة العملاء</button>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
             projectId: "flash2-d91cf",
-            storageBucket: "flash2-d91cf.firebasestorage.app",
+            storageBucket: "flash2-d91cf.appspot.com",
             messagingSenderId: "56061341567",
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
@@ -73,7 +76,7 @@
                     <td>${address}</td>
                     <td>${collection}</td>
                     <td>${status}</td>
-                    <td><button onclick="deleteShipment('${name}')">حذف</button></td>
+                    <td><button class="btn btn-danger" onclick="deleteShipment('${name}')">حذف</button></td>
                 </tr>
             `;
             document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
