@@ -187,3 +187,16 @@ body {
 textarea {
     resize: none;
 }
+                                                                                                                                                                                                                                                                                                                                  /* تحسينات إضافية بواسطة Bootstrap */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-block {
+    width: 100%;
+}
+
