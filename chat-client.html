@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شات العميل</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>شات مع خدمة العملاء</h2>
+        <div id="messages" class="messages"></div>
+        <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
+        <button onclick="sendMessage()">إرسال</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
+            authDomain: "flash2-d91cf.firebaseapp.com",
+            projectId: "flash2-d91cf",
+            storageBucket: "flash2-d91cf.appspot.com",
+            messagingSenderId: "56061341567",
+            appId: "1:56061341567:web:54ab9815e76f0225b4344a"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const username = localStorage.getItem('clientUsername');
+
+        function loadMessages() {
+            db.collection('messages').orderBy('timestamp').onSnapshot((snapshot) => {
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const message = doc.data();
+                    const messageDiv = document.createElement('div');
+                    messageDiv.textContent = `${message.sender}: ${message.text}`;
+                    messagesDiv.appendChild(messageDiv);
+                });
+            });
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value;
+            if (messageText.trim() !== '') {
+                db.collection('messages').add({
+                    sender: username,
+                    text: messageText,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                messageInput.value = '';
+            }
+        }
+
+        loadMessages();
+    </script>
+</body>
+</html>
