@@ -136,9 +136,20 @@ button {
 .chat-input button:hover {
     background-color: #0056b3;
 }
+    
 
 }
 
 button:hover {
     background-color: #0056b3; /* لون أزرق غامق عند التمرير */
 }
+/* تنسيق الحاوية العامة */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.sidebar {
+    width: [_{{{CITATION{{{_1{](https://github.com/hkhatuwal/Transport-Backend/tree/65cb41464bab6b12052596c9c17d65a2cbc6b7d5/resources%2Fviews%2Fmap.blade.php)[_{{{CITATION{{{_2{](https://github.com/qolbudr/huniaja/tree/dfffc3911a0f8482d668f6ac884f7ca81dbe151b/laravel%2Fresources%2Fviews%2Fmaster.blade.php)[_{{{CITATION{{{_3{](https://github.com/hkhatuwal/Transport-Backend/tree/65cb41464bab6b12052596c9c17d65a2cbc6b7d5/resources%2Fviews%2Fposts.blade.php)
