@@ -51,4 +51,71 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="[_{{{CITATION{{{_1{](https://github.com/huukhuong/ChatRealTimePHP/tree/aeb56c63e0d5508fc817202596ea9b9c00fd5195/components%2Fheader.php)[_{{{CITATION{{{_2{](https://github.com/Nurakhmet/military_registration/tree/7f85c403ccec8cb2a69e4f67790292f69a54c202/slideshows.php)[_{{{CITATION{{{_3{](https://github.com/suzukinanako-smile/kadai-microposts/tree/31b116c24841880c6a07f52867be4207206af47b/resources%2Fviews%2Flayouts%2Fapp.blade.php)[_{{{CITATION{{{_4{](https://github.com/fedexperez/telematicaAPI/tree/f0c886bb7a6b48ac0fcc60f3219fffd33f4e4292/resources%2Fviews%2Fbase.blade.php)[_{{{CITATION{{{_5{](https://github.com/MOLi-rocks/MOLi-TelegramBot/tree/4f227e83f72daad4ba1ba9aa52db9cda5f6dc270/resources%2Fviews%2FLINE%2Fstats.blade.php)[_{{{CITATION{{{_6{](https://github.com/Giorgospago/foodbird/tree/f007dc43168a56b897a5c95ade2617fd5b40e30e/index.php)[_{{{CITATION{{{_7{](https://github.com/asd412id/AduanApp/tree/d24c621c0afd495d2aa9c98459997c8c2a032850/resources%2Fviews%2Flayouts%2Fmaster.blade.php)[_{{{CITATION{{{_8{](https://github.com/qolbudr/huniaja/tree/dfffc3911a0f8482d668f6ac884f7ca81dbe151b/laravel%2Fresources%2Fviews%2Fmaster.blade.php)[_{{{CITATION{{{_9{](https://github.com/hkhatuwal/Transport-Backend/tree/65cb41464bab6b12052596c9c17d65a2cbc6b7d5/resources%2Fviews%2Fposts.blade.php)[_{{{CITATION{{{_10{](https://github.com/nairashwin17/kalon-demo/tree/c7fc02f4c0de42bbfc7fbec651c12f5ed8362798/footer.php)[_{{{CITATION{{{_11{](https://github.com/rohan-coder02/Timetable/tree/e7e09207256ca28a65ebbac44042fe26b1bd2952/Timetable%2Fabout.php)[_{{{CITATION{{{_12{](https://github.com/m4nzm333/sisfo-kaset/tree/595fff4651e07fa470982f61b00952d0b2e56a7e/application%2Fviews%2Fhome.php)
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
+            authDomain: "flash2-d91cf.firebaseapp.com",
+            projectId: "flash2-d91cf",
+            storageBucket: "flash2-d91cf.appspot.com",
+            messagingSenderId: "56061341567",
+            appId: "1:56061341567:web:54ab9815e76f0225b4344a"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const adminUsername = "admin";
+        const adminPassword = "admin123";
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === adminUsername && password === adminPassword) {
+                alert('تم تسجيل الدخول كأدمن');
+                window.location.href = 'admin.html';
+            } else {
+                db.collection("users")
+                    .where("username", "==", username)
+                    .where("password", "==", password)
+                    .get()
+                    .then((querySnapshot) => {
+                        if (!querySnapshot.empty) {
+                            alert('تم تسجيل الدخول بنجاح');
+                            localStorage.setItem('clientUsername', username);
+                            window.location.href = 'client.html';
+                        } else {
+                            alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("خطأ أثناء التحقق من بيانات الدخول: ", error);
+                    });
+            }
+        }
+
+        function register() {
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('role').value;
+
+            if (username && password) {
+                db.collection("users").add({
+                    username: username,
+                    password: password,
+                    role: role
+                })
+                .then(() => {
+                    alert('تم تسجيل العميل الجديد بنجاح!');
+                })
+                .catch((error) => {
+                    console.error("خطأ أثناء إضافة العميل الجديد: ", error);
+                    alert('فشل في تسجيل العميل الجديد.');
+                });
+            } else {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
+            }
+        }
+    </script>
+</body>
+</html>
