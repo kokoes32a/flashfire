@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة الأدمن</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- إضافة Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
@@ -13,10 +12,17 @@
     <div class="container">
         <h2>إدارة شحنات العملاء</h2>
         <div id="clientsContainer"></div>
+        
+        <h3>الرسائل</h3>
+        <div id="messagesContainer"></div>
+        
+        <div id="messageInputContainer">
+            <textarea id="adminMessage" placeholder="اكتب ردك هنا"></textarea>
+            <button onclick="sendMessage()">إرسال</button>
+        </div>
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyA6qT3_bz-TW-APYInozsWbp95c6h7v0-A",
             authDomain: "flash2-d91cf.firebaseapp.com",
@@ -26,29 +32,25 @@
             appId: "1:56061341567:web:54ab9815e76f0225b4344a"
         };
 
-        // تهيئة Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // تهيئة Firestore
+        const db = firebase.firestore();
 
-        // دالة لعرض قائمة أسماء العملاء
+        // دالة لعرض قائمة العملاء
         function displayClients() {
             const container = document.getElementById('clientsContainer');
             container.innerHTML = ''; // تنظيف المحتوى السابق
 
-            // جلب كل العملاء من قاعدة البيانات
             db.collection('shipments').get().then((querySnapshot) => {
-                const clients = new Set(); // لتخزين أسماء العملاء الفريدة
-
+                const clients = new Set();
                 querySnapshot.forEach((doc) => {
                     const shipment = doc.data();
-                    clients.add(shipment.username); // إضافة اسم العميل للمجموعة
+                    clients.add(shipment.username);
                 });
 
-                // عرض كل اسم عميل في مربع أو زر
                 clients.forEach((clientName) => {
                     const clientButton = document.createElement('button');
                     clientButton.textContent = clientName;
-                    clientButton.onclick = () => viewClientShipments(clientName); // عند الضغط، عرض الشحنات
+                    clientButton.onclick = () => viewClientShipments(clientName);
                     container.appendChild(clientButton);
                 });
             });
@@ -79,7 +81,6 @@
             `;
             container.appendChild(table);
 
-            // جلب شحنات هذا العميل فقط
             db.collection('shipments').where('username', '==', clientName).get()
                 .then((querySnapshot) => {
                     querySnapshot.forEach((doc) => {
@@ -87,6 +88,8 @@
                         addRowToTable(shipment.name, shipment.address, shipment.collection, shipment.status, doc.id);
                     });
                 });
+
+            displayMessages(clientName);  // عرض الرسائل الخاصة بالعميل
         }
 
         // دالة لإضافة صف للشحنة في الجدول
@@ -118,7 +121,7 @@
             })
             .then(() => {
                 console.log('تم تحديث الحالة بنجاح!');
-                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim()); // إعادة تحميل شحنات العميل بعد التعديل
+                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim());
             })
             .catch((error) => {
                 console.error('خطأ في تحديث الحالة: ', error);
@@ -130,10 +133,52 @@
             db.collection('shipments').doc(docId).delete()
             .then(() => {
                 console.log('تم حذف الشحنة بنجاح!');
-                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim()); // إعادة تحميل شحنات العميل بعد الحذف
+                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim());
             })
             .catch((error) => {
                 console.error('خطأ في حذف الشحنة: ', error);
+            });
+        }
+
+        // دالة لعرض الرسائل بين العميل والأدمن
+        function displayMessages(clientName) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = ''; // تنظيف المحتوى السابق
+
+            db.collection('messages')
+                .where('recipient', '==', clientName)
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    snapshot.forEach((doc) => {
+                        const message = doc.data();
+                        const messageDiv = document.createElement('div');
+                        messageDiv.textContent = `${message.sender}: ${message.text}`;
+                        messagesContainer.appendChild(messageDiv);
+                    });
+                });
+        }
+
+        // دالة لإرسال رسالة من الأدمن للعميل
+        function sendMessage() {
+            const clientName = document.querySelector('h3').textContent.split(':')[1].trim();
+            const messageText = document.getElementById('adminMessage').value;
+            const sender = 'Admin'; // اسم المستخدم للأدمن
+
+            if (messageText.trim() === '') {
+                alert('الرسالة فارغة!');
+                return;
+            }
+
+            db.collection('messages').add({
+                sender: sender,
+                recipient: clientName,
+                text: messageText,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                console.log('تم إرسال الرسالة بنجاح!');
+                document.getElementById('adminMessage').value = ''; // مسح النص بعد الإرسال
+            }).catch((error) => {
+                console.error('خطأ في إرسال الرسالة: ', error);
             });
         }
 
