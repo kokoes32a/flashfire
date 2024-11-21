@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة العميل</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="text-center mb-4">شحناتك</h2>
-        <table id="shipmentTable" class="table table-striped mb-4">
+        <h2 class="text-center mb-4 animate__animated animate__fadeInDown">شحناتك</h2>
+        <table id="shipmentTable" class="table table-striped mb-4 animate__animated animate__fadeIn">
             <thead class="thead-light">
                 <tr>
                     <th>اسم العميل</th>
@@ -24,7 +25,7 @@
         </table>
         
         <!-- إضافة الحقول في نفس الصفحة -->
-        <h3 class="mb-3">إضافة شحنة جديدة</h3>
+        <h3 class="mb-3 animate__animated animate__fadeInLeft">إضافة شحنة جديدة</h3>
         <div class="form-row mb-3">
             <div class="form-group col-md-4">
                 <input type="text" id="shipmentName" class="form-control" placeholder="اسم العميل">
@@ -36,10 +37,10 @@
                 <input type="text" id="shipmentCollection" class="form-control" placeholder="التحصيل بالشحن">
             </div>
         </div>
-        <button class="btn btn-primary mb-4" onclick="addNewShipment()">إضافة شحنة</button>
+        <button class="btn btn-primary mb-4 animate__animated animate__pulse" onclick="addNewShipment()">إضافة شحنة</button>
 
         <!-- زر الشات -->
-        <button class="btn btn-secondary" onclick="openChat()">التحدث لخدمة العملاء</button>
+        <button class="btn btn-secondary animate__animated animate__bounceIn" onclick="openChat()">التحدث لخدمة العملاء</button>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -71,12 +72,12 @@
 
         function addRowToTable(name, address, collection, status) {
             const newRow = `
-                <tr>
+                <tr class="animate__animated animate__fadeIn">
                     <td>${name}</td>
                     <td>${address}</td>
                     <td>${collection}</td>
                     <td>${status}</td>
-                    <td><button class="btn btn-danger" onclick="deleteShipment('${name}')">حذف</button></td>
+                    <td><button class="btn btn-danger animate__animated animate__fadeInUp" onclick="deleteShipment('${name}')">حذف</button></td>
                 </tr>
             `;
             document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
@@ -133,7 +134,7 @@
         }
 
         function openChat() {
-            window.location.href = "chat.html"; // الانتقال إلى صفحة الشات
+            window.location.href = "chat.html";
         }
     </script>
 </body>
