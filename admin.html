@@ -4,54 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة الأدمن</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="sidebar">
-        <h2>لوحة التحكم</h2>
-        <ul>
-            <li><a href="#"><i class="fas fa-tachometer-alt"></i> الرئيسية</a></li>
-            <li><a href="#"><i class="fas fa-box"></i> الشحنات</a></li>
-            <li><a href="#"><i class="fas fa-users"></i> العملاء</a></li>
-            <li><a href="#"><i class="fas fa-chart-line"></i> الإحصاءات</a></li>
-            <li><a href="#"><i class="fas fa-cog"></i> الإعدادات</a></li>
-        </ul>
-    </div>
-    
-    <div class="main-content">
-        <div class="header">
-            <h2>مرحباً، الأدمن</h2>
-            <button>تسجيل خروج</button>
-        </div>
+    <div class="container mt-4">
+        <h2 class="text-center mb-4">إدارة شحنات العملاء</h2>
+        <div id="clientsContainer" class="mb-4"></div>
         
-        <div class="cards">
-            <div class="card">
-                <h3>إجمالي الشحنات</h3>
-                <p>8,98,879</p>
-            </div>
-            <div class="card">
-                <h3>الأرباح</h3>
-                <p>$32,000.89</p>
-            </div>
-            <div class="card">
-                <h3>الطلبات الأخيرة</h3>
-                <p>14 طلب جديد</p>
-            </div>
-        </div>
+        <h3 class="mb-3">الرسائل</h3>
+        <div id="messagesContainer" class="mb-4"></div>
         
-        <h3>إدارة شحنات العملاء</h3>
-        <div id="clientsContainer"></div>
-        
-        <h3>الرسائل</h3>
-        <div id="messagesContainer"></div>
-        
-        <div id="messageInputContainer">
-            <textarea id="adminMessage" placeholder="اكتب ردك هنا"></textarea>
-            <button onclick="sendMessage()">إرسال</button>
+        <div id="messageInputContainer" class="mb-3">
+            <textarea id="adminMessage" class="form-control mb-2" placeholder="اكتب ردك هنا"></textarea>
+            <button class="btn btn-primary" onclick="sendMessage()">إرسال</button>
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
@@ -67,9 +39,10 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // دالة لعرض قائمة العملاء
         function displayClients() {
             const container = document.getElementById('clientsContainer');
-            container.innerHTML = ''; 
+            container.innerHTML = ''; // تنظيف المحتوى السابق
 
             db.collection('shipments').get().then((querySnapshot) => {
                 const clients = new Set();
@@ -81,23 +54,26 @@
                 clients.forEach((clientName) => {
                     const clientButton = document.createElement('button');
                     clientButton.textContent = clientName;
+                    clientButton.className = 'btn btn-outline-secondary mb-2'; // استخدام Bootstrap class
                     clientButton.onclick = () => viewClientShipments(clientName);
                     container.appendChild(clientButton);
                 });
             });
         }
 
+        // دالة لعرض شحنات العميل بعد الضغط على اسمه
         function viewClientShipments(clientName) {
             const container = document.getElementById('clientsContainer');
-            container.innerHTML = ''; 
+            container.innerHTML = ''; // تنظيف المحتوى السابق
 
             const title = document.createElement('h3');
             title.textContent = `شحنات العميل: ${clientName}`;
             container.appendChild(title);
 
             const table = document.createElement('table');
+            table.className = 'table table-striped'; // استخدام Bootstrap class
             table.innerHTML = `
-                <thead>
+                <thead class="thead-light">
                     <tr>
                         <th>اسم العميل</th>
                         <th>عنوان العميل</th>
@@ -119,9 +95,102 @@
                     });
                 });
 
-            displayMessages(clientName);  
+            displayMessages(clientName);  // عرض الرسائل الخاصة بالعميل
         }
 
+        // دالة لإضافة صف للشحنة في الجدول
         function addRowToTable(name, address, collection, status, docId) {
             const newRow = `
                 <tr>
+                    <td>${name}</td>
+                    <td>${address}</td>
+                    <td>${collection}</td>
+                    <td>${status || 'لم يتم تحديد الحالة بعد'}</td>
+                    <td>
+                        <select class="form-control" onchange="updateShipmentStatus('${docId}', this.value)">
+                            <option value="in queue" ${status === 'in queue' ? 'selected' : ''}>في الانتظار</option>
+                            <option value="done" ${status === 'done' ? 'selected' : ''}>تم الإنجاز</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteShipment('${docId}')">حذف</button>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
+        }
+
+        // دالة لتحديث حالة الشحنة
+        function updateShipmentStatus(docId, newStatus) {
+            db.collection('shipments').doc(docId).update({
+                status: newStatus
+            })
+            .then(() => {
+                console.log('تم تحديث الحالة بنجاح!');
+                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim());
+            })
+            .catch((error) => {
+                console.error('خطأ في تحديث الحالة: ', error);
+            });
+        }
+
+        // دالة لحذف الشحنة
+        function deleteShipment(docId) {
+            db.collection('shipments').doc(docId).delete()
+            .then(() => {
+                console.log('تم حذف الشحنة بنجاح!');
+                viewClientShipments(document.querySelector('h3').textContent.split(':')[1].trim());
+            })
+            .catch((error) => {
+                console.error('خطأ في حذف الشحنة: ', error);
+            });
+        }
+
+        // دالة لعرض الرسائل بين العميل والأدمن
+        function displayMessages(clientName) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = ''; // تنظيف المحتوى السابق
+
+            db.collection('messages')
+                .where('recipient', '==', clientName)
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    snapshot.forEach((doc) => {
+                        const message = doc.data();
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'alert alert-secondary'; // استخدام Bootstrap class
+                        messageDiv.textContent = `${message.sender}: ${message.text}`;
+                        messagesContainer.appendChild(messageDiv);
+                    });
+                });
+        }
+
+        // دالة لإرسال رسالة من الأدمن للعميل
+        function sendMessage() {
+            const clientName = document.querySelector('h3').textContent.split(':')[1].trim();
+            const messageText = document.getElementById('adminMessage').value;
+            const sender = 'Admin'; // اسم المستخدم للأدمن
+
+            if (messageText.trim() === '') {
+                alert('الرسالة فارغة!');
+                return;
+            }
+
+            db.collection('messages').add({
+                sender: sender,
+                recipient: clientName,
+                text: messageText,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                console.log('تم إرسال الرسالة بنجاح!');
+                document.getElementById('adminMessage').value = ''; // مسح النص بعد الإرسال
+            }).catch((error) => {
+                console.error('خطأ في إرسال الرسالة: ', error);
+            });
+        }
+
+        // استدعاء دالة displayClients عند تحميل الصفحة
+        window.onload = displayClients;
+    </script>
+</body>
+</html>
