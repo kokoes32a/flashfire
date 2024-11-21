@@ -153,3 +153,37 @@ body {
 
 .sidebar {
     width: [_{{{CITATION{{{_1{](https://github.com/hkhatuwal/Transport-Backend/tree/65cb41464bab6b12052596c9c17d65a2cbc6b7d5/resources%2Fviews%2Fmap.blade.php)[_{{{CITATION{{{_2{](https://github.com/qolbudr/huniaja/tree/dfffc3911a0f8482d668f6ac884f7ca81dbe151b/laravel%2Fresources%2Fviews%2Fmaster.blade.php)[_{{{CITATION{{{_3{](https://github.com/hkhatuwal/Transport-Backend/tree/65cb41464bab6b12052596c9c17d65a2cbc6b7d5/resources%2Fviews%2Fposts.blade.php)
+                                                                                                                                                                                                                                                                                                                                  
+/* تحسينات إضافية بواسطة Bootstrap */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.sidebar {
+    background-color: #007acc;
+}
+
+.sidebar h2 {
+    color: white;
+    margin-bottom: 20px;
+}
+
+.sidebar ul.nav-link {
+    color: white;
+}
+
+.sidebar ul .nav-item .nav-link {
+    color: white;
+}
+
+.main-content {
+    padding: 20px;
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+textarea {
+    resize: none;
+}
